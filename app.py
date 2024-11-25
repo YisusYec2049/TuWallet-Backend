@@ -1,40 +1,49 @@
-from flask import Flask, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text, func
+from flask import Flask, request, jsonify
+from models.db import db
+from routes.transactions_route import create_transaction_route, get_transactions_route
+from routes.user_route import (
+    login_route,
+    register_route,
+    get_balance_route,
+    update_balance_route
+)
 from config import Config
-from models.db import Transaction
+from sqlalchemy import text
 
 app = Flask(__name__)
-
 app.config.from_object(Config)
 
-db = SQLAlchemy(app)
+db.init_app(app)
 
 @app.route("/")
 def index():
     return "¡Backend funcionando correctamente!"
 
 @app.route("/balance/<int:user_id>", methods=["GET"])
-def balance(user_id):
-    try:
-        total_deposit = db.session.query(
-            func.sum(Transaction.amount)
-        ).filter(
-            Transaction.user_id == user_id,
-            Transaction.type == 'deposit'
-        ).scalar() or 0
+def get_balance(user_id):
+    return get_balance_route(user_id)
 
-        total_withdraw = db.session.query(
-            func.sum(Transaction.amount)
-        ).filter(
-            Transaction.user_id == user_id,
-            Transaction.type.in_(['withdraw', 'service'])
-        ).scalar() or 0
+@app.route("/update_balance/<int:user_id>", methods=["POST"])
+def update_balance(user_id):
+    return update_balance_route(user_id)
 
-        balance = total_deposit - total_withdraw
-        return jsonify({"user_id": user_id, "balance": float(balance)})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+@app.route("/register", methods=["POST"])
+def register():
+    return register_route()
+
+@app.route("/login", methods=["POST"])
+def login():
+    return login_route()
+
+@app.route("/create_transaction_route", methods =["POST"])
+def create_transaction():
+    return create_transaction_route()
+
+@app.route('/users/<int:user_id>/transactions', methods=['GET'])
+def get_transactions(user_id):
+    print(f"Request for user_id: {user_id}")
+    print(f"Full URL: {request.url}")
+    return get_transactions_route(user_id)
 
 if __name__ == "__main__":
     try:

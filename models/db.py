@@ -9,6 +9,11 @@ class User(db.Model):
     email = db.Column(db.String(50), nullable=False)
     password_hash = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
+    balance = db.Column(db.Float, default=0.0)
+
+    def __repr__(self):
+        return f'<User {self.username}>'
+
 
 class Transaction(db.Model):
     __tablename__ = 'Transactions'
