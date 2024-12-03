@@ -9,6 +9,7 @@ class UsersAPI(Resource):
             {
                 "user_id": u.user_id,
                 "username": u.username,
+                "phone": u.phone,
                 "email": u.email,
                 "created_at": str(u.created_at)
             }
@@ -18,6 +19,7 @@ class UsersAPI(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('username', required=True, type=str)
+        parser.add_argument('phone', required=True, type=int)
         parser.add_argument('email', required=True, type=str)
         parser.add_argument('password', required=True, type=str)
         args = parser.parse_args()

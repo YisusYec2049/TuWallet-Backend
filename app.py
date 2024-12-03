@@ -1,6 +1,9 @@
 from flask import Flask, request, jsonify
 from models.db import db
-from routes.transactions_route import create_transaction_route, get_transactions_route
+from routes.transactions_route import (
+    create_transaction_route, 
+    get_transactions_route
+)
 from routes.user_route import (
     login_route,
     register_route,
@@ -9,10 +12,12 @@ from routes.user_route import (
 )
 from config import Config
 from sqlalchemy import text
+from flask_cors import CORS
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
-
+CORS(app)
 db.init_app(app)
 
 @app.route("/")
@@ -23,7 +28,7 @@ def index():
 def get_balance(user_id):
     return get_balance_route(user_id)
 
-@app.route("/update_balance/<int:user_id>", methods=["POST"])
+@app.route("/update_balance/<int:user_id>", methods=["PUT"])
 def update_balance(user_id):
     return update_balance_route(user_id)
 
@@ -52,7 +57,7 @@ if __name__ == "__main__":
                 result = connection.execute(text("SELECT 1")).fetchone()
                 print(f"Resultado de la prueba de conexión: {result}")
         print("¡Conexión exitosa a la base de datos!")
-    except Exception as e:
+    except Exception as e:  
         print(f"Error al conectar con la base de datos: {e}")
     
     app.run(debug=True)

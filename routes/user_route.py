@@ -8,15 +8,14 @@ def login_route():
     phone = data.get('phone')
     password = data.get('password')
 
-    user = User.query.filter_by(username=phone).first()
+    user = User.query.filter_by(phone=phone).first()
     if user and check_password_hash(user.password_hash, password):
-        return jsonify({'message': 'Login successful', 'user_id': user.user_id}), 200
+        return jsonify({'message': 'Login successful', 'user_id': user.user_id, 'username' : user.username}), 200
     return jsonify({'message': 'Invalid credentials'}), 401
 
 def register_route():
     data = request.get_json()
-    name = data.get('name', 'Default Name')
-    surname = data.get('surname', 'Default Surname')
+    username = data.get('username')
     email = data.get('email')
     phone = data.get('phone')
     password = data.get('password')
@@ -32,7 +31,8 @@ def register_route():
         return jsonify({'message': 'Email already exists'}), 400
 
     new_user = User(
-        username=phone,
+        username=username,
+        phone= phone,
         email=email,
         password_hash=generate_password_hash(password)
     )
@@ -56,6 +56,6 @@ def update_balance_route(user_id):
     if not user:
         return jsonify({'message': 'User not found'}), 404
 
-    user.balance += amount
+    user.balance = amount
     db.session.commit()
     return jsonify({'message': 'Balance updated successfully', 'balance': user.balance}), 200
